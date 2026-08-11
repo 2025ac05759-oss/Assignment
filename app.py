@@ -30,7 +30,36 @@ MODEL_FILES = {
     "Random Forest (Ensemble)": "random_forest_ensemble.joblib",
 }
 
-st.set_page_config(page_title="Breast Cancer Classifier Comparison", layout="wide")
+st.set_page_config(page_title="Breast Cancer Classifier Comparison", page_icon="🩺", layout="wide")
+
+st.markdown(
+    """
+    <style>
+    h1 {
+        color: #0f3d3a;
+        border-bottom: 3px solid #0f766e;
+        padding-bottom: 0.4rem;
+    }
+    h2, h3 { color: #0f3d3a; }
+    h2 {
+        border-left: 4px solid #0f766e;
+        padding-left: 0.6rem;
+    }
+    [data-testid="stMetric"] {
+        background-color: #eaf4f2;
+        border-left: 4px solid #0f766e;
+        border-radius: 6px;
+        padding: 0.8rem 1rem 0.6rem 1rem;
+    }
+    [data-testid="stMetricLabel"] { color: #0f3d3a; }
+    [data-testid="stSidebar"] {
+        background-color: #f4faf9;
+        border-right: 1px solid #cfe6e2;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 @st.cache_resource
