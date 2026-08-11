@@ -54,6 +54,24 @@ def compute_metrics(y_true, y_pred, y_proba) -> dict:
     }
 
 
+def build_classification_report(y_true, y_pred, target_names) -> pd.DataFrame:
+    """classification_report(output_dict=True) stores 'accuracy' as a bare
+    float instead of a {precision, recall, f1, support} dict. Converting
+    that straight to a DataFrame broadcasts the single accuracy value into
+    every column on that row, which reads as nonsense (e.g. a 'precision of
+    accuracy'). This rebuilds the row the way scikit-learn's own plain-text
+    report shows it: precision/recall blank, accuracy under f1-score, and
+    the true total sample count under support."""
+    report = classification_report(y_true, y_pred, target_names=target_names, output_dict=True)
+    accuracy = report.pop("accuracy")
+
+    df = pd.DataFrame(report).transpose().round(3)
+    total_support = int(df.loc[target_names, "support"].sum())
+
+    df.loc["accuracy"] = [None, None, round(accuracy, 3), total_support]
+    return df.loc[target_names + ["accuracy", "macro avg", "weighted avg"]]
+
+
 st.title("Breast Cancer Diagnosis - Classifier Comparison")
 st.markdown(
     "Predicts whether a breast tumor is **malignant** or **benign** from "
@@ -89,7 +107,7 @@ if missing_cols:
     st.stop()
 
 st.subheader(f"Data preview — {source_label}")
-st.dataframe(data.head(10), use_container_width=True)
+st.dataframe(data.head(10), width="stretch")
 st.caption(f"{data.shape[0]} rows x {data.shape[1]} columns")
 
 X = data[FEATURE_COLUMNS]
@@ -109,7 +127,7 @@ preview_cols += ["predicted_diagnosis", "benign_probability"]
 if has_labels:
     results["actual_diagnosis"] = results[TARGET_COLUMN].map(CLASS_NAMES)
     preview_cols.append("actual_diagnosis")
-st.dataframe(results[preview_cols], use_container_width=True)
+st.dataframe(results[preview_cols], width="stretch")
 
 if has_labels:
     y_true = data[TARGET_COLUMN]
@@ -137,10 +155,10 @@ if has_labels:
 
     with right:
         st.markdown("**Classification report**")
-        report = classification_report(
-            y_true, predictions, target_names=list(CLASS_NAMES.values()), output_dict=True
+        report_df = build_classification_report(
+            y_true, predictions, target_names=list(CLASS_NAMES.values())
         )
-        st.dataframe(pd.DataFrame(report).transpose().round(3), use_container_width=True)
+        st.dataframe(report_df, width="stretch")
 
     with st.expander("Compare all 5 models on this data"):
         rows = []
@@ -152,7 +170,7 @@ if has_labels:
             row["Model"] = name
             rows.append(row)
         comparison = pd.DataFrame(rows)[["Model", "Accuracy", "AUC", "Precision", "Recall", "F1", "MCC"]]
-        st.dataframe(comparison.round(4), use_container_width=True)
+        st.dataframe(comparison.round(4), width="stretch")
 else:
     st.warning(
         f"No '{TARGET_COLUMN}' column found in the uploaded data, so evaluation metrics "

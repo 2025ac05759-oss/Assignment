@@ -6,7 +6,7 @@ Breast cancer diagnosis from fine needle aspirate (FNA) images is traditionally
 done by a pathologist inspecting cell nuclei under a microscope. This project
 frames diagnosis as a binary classification problem: given a set of numeric
 measurements computed from a digitized FNA image of a breast mass, predict
-whether the mass is **malignant** or **benign**. Six classification models are
+whether the mass is **malignant** or **benign**. Five classification models are
 trained on the same dataset, compared on a common set of evaluation metrics,
 and made available through an interactive Streamlit app so a user can upload
 test data, pick a model, and inspect its predictions and performance.
