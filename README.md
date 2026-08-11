@@ -1,4 +1,4 @@
-# Breast Cancer Diagnosis — Classifier Comparison
+# Breast Cancer Diagnosis: Classifier Comparison
 
 ## a. Problem statement
 
@@ -29,7 +29,7 @@ why there are 30 columns instead of 10.
 |---|---|
 | Instances | 569 |
 | Features | 30 numeric columns (mean / error / worst of 10 cell-nucleus measurements: radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, fractal dimension) |
-| Target | `diagnosis` — 0 = malignant, 1 = benign |
+| Target | `diagnosis` (0 = malignant, 1 = benign) |
 | Class balance | 212 malignant, 357 benign |
 | Missing values | None |
 
@@ -59,19 +59,19 @@ apples.
 | Naive Bayes | 0.9386 | 0.9878 | 0.9452 | 0.9583 | 0.9517 | 0.8676 |
 | Random Forest (Ensemble) | 0.9474 | 0.9937 | 0.9583 | 0.9583 | 0.9583 | 0.8869 |
 
-*(You can regenerate this table any time by running `python model/train_models.py` —
-it redoes the split, retrains every model, and rewrites `model/metrics_comparison.csv`.)*
+*(You can regenerate this table any time by running `python model/train_models.py`,
+which redoes the split, retrains every model, and rewrites `model/metrics_comparison.csv`.)*
 
 ### Observations
 
 | ML Model Name | Observation about model performance |
 |---|---|
-| Logistic Regression | Came out on top on every single metric (accuracy 0.9825, AUC 0.9954, MCC 0.9623). I didn't expect the simplest model here to win, but it makes sense once you look at the features — most of the 30 columns are really just different ways of measuring "how big and irregular is this cell", so they move in a pretty straight line with the diagnosis. That's exactly the kind of pattern a linear model like this is built for. |
+| Logistic Regression | Came out on top on every single metric (accuracy 0.9825, AUC 0.9954, MCC 0.9623). I didn't expect the simplest model here to win, but it makes sense once you look at the features. Most of the 30 columns are really just different ways of measuring "how big and irregular is this cell," so they move in a pretty straight line with the diagnosis. That's exactly the kind of pattern a linear model like this is built for. |
 | Decision Tree | The weakest of the five (accuracy 0.9211, MCC 0.8313). I capped the tree depth at 5 so it wouldn't badly overfit on just 569 rows, but even a shallow tree can only cut the data into boxy, straight-edged regions, so it misses some of the smoother patterns the other models pick up. Its AUC (0.9368) was also the lowest by a clear margin, meaning its confidence scores are less trustworthy than the other models'. |
-| kNN | A close second, and it got recall to a perfect 1.0 — it didn't miss a single actual malignant case in this test set. That works well here because I scaled the features first, so distance between points means something, and the malignant and benign cases turn out to sit in fairly separate clusters once you do that. |
-| Naive Bayes | Landed in the middle (accuracy 0.9386, MCC 0.8676). Naive Bayes assumes all the features are independent of one another, and that's basically false here — mean radius, mean perimeter, and mean area are all just different ways of describing the size of the same cell, so they're heavily correlated. That broken assumption is probably the main reason it underperforms the rest. |
-| Random Forest (Ensemble) | Did well (accuracy 0.9474, AUC 0.9937) and was a clear step up from the single Decision Tree it's built out of, which lines up with what you'd expect — averaging many trees smooths out the mistakes any one tree makes. It still didn't beat Logistic Regression or kNN here, probably because 569 rows isn't a huge amount of data for 300 trees to each find something different to specialize in. |
-| **Overall Winner for your dataset?** | **Logistic Regression.** It wins on every metric at once, which doesn't happen very often. My best guess is that it comes down to the dataset itself — the features are clean, continuous, and pretty much linearly related to the outcome, so a simple linear model doesn't really lose anything by not being more complex. |
+| kNN | A close second, and it got recall to a perfect 1.0. It didn't miss a single actual malignant case in this test set. That works well here because I scaled the features first, so distance between points means something, and the malignant and benign cases turn out to sit in fairly separate clusters once you do that. |
+| Naive Bayes | Landed in the middle (accuracy 0.9386, MCC 0.8676). Naive Bayes assumes all the features are independent of one another, and that's basically false here. Mean radius, mean perimeter, and mean area are all just different ways of describing the size of the same cell, so they're heavily correlated. That broken assumption is probably the main reason it underperforms the rest. |
+| Random Forest (Ensemble) | Did well (accuracy 0.9474, AUC 0.9937) and was a clear step up from the single Decision Tree it's built out of, which lines up with what you'd expect. Averaging many trees smooths out the mistakes any one tree makes. It still didn't beat Logistic Regression or kNN here, probably because 569 rows isn't a huge amount of data for 300 trees to each find something different to specialize in. |
+| **Overall Winner for your dataset?** | **Logistic Regression.** It wins on every metric at once, which doesn't happen very often. My best guess is that it comes down to the dataset itself. The features are clean, continuous, and pretty much linearly related to the outcome, so a simple linear model doesn't really lose anything by not being more complex. |
 
 ## Project structure
 

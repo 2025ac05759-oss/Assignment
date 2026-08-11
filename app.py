@@ -106,7 +106,7 @@ if missing_cols:
     st.error(f"Uploaded file is missing {len(missing_cols)} required feature column(s): {missing_cols[:5]}...")
     st.stop()
 
-st.subheader(f"Data preview — {source_label}")
+st.subheader(f"Data preview: {source_label}")
 st.dataframe(data.head(10), width="stretch")
 st.caption(f"{data.shape[0]} rows x {data.shape[1]} columns")
 
@@ -121,7 +121,7 @@ results = data.copy()
 results["predicted_diagnosis"] = pd.Series(predictions).map(CLASS_NAMES)
 results["benign_probability"] = probabilities.round(4)
 
-st.subheader(f"Predictions — {model_name}")
+st.subheader(f"Predictions: {model_name}")
 preview_cols = ["id"] if "id" in results.columns else []
 preview_cols += ["predicted_diagnosis", "benign_probability"]
 if has_labels:
@@ -174,5 +174,5 @@ if has_labels:
 else:
     st.warning(
         f"No '{TARGET_COLUMN}' column found in the uploaded data, so evaluation metrics "
-        "and the confusion matrix can't be computed — only predictions are shown."
+        "and the confusion matrix can't be computed, only predictions are shown."
     )
