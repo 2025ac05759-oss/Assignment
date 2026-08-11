@@ -55,13 +55,12 @@ def compute_metrics(y_true, y_pred, y_proba) -> dict:
 
 
 def build_classification_report(y_true, y_pred, target_names) -> pd.DataFrame:
-    """classification_report(output_dict=True) stores 'accuracy' as a bare
-    float instead of a {precision, recall, f1, support} dict. Converting
-    that straight to a DataFrame broadcasts the single accuracy value into
-    every column on that row, which reads as nonsense (e.g. a 'precision of
-    accuracy'). This rebuilds the row the way scikit-learn's own plain-text
-    report shows it: precision/recall blank, accuracy under f1-score, and
-    the true total sample count under support."""
+    """classification_report's output_dict stuffs 'accuracy' in as a single
+    number instead of a precision/recall/f1/support dict like the other rows,
+    so turning it straight into a table just repeats that one number across
+    every column (looks like nonsense, e.g. a "precision of accuracy"). This
+    fixes it to match how sklearn's own printed report looks: precision/recall
+    left blank, accuracy under f1-score, and the real total under support."""
     report = classification_report(y_true, y_pred, target_names=target_names, output_dict=True)
     accuracy = report.pop("accuracy")
 
@@ -74,9 +73,10 @@ def build_classification_report(y_true, y_pred, target_names) -> pd.DataFrame:
 
 st.title("Breast Cancer Diagnosis - Classifier Comparison")
 st.markdown(
-    "Predicts whether a breast tumor is **malignant** or **benign** from "
-    "30 diagnostic measurements (Breast Cancer Wisconsin Diagnostic dataset). "
-    "Upload test data, pick a model, and inspect its performance."
+    "This app predicts whether a tumor is **malignant** or **benign** using 30 "
+    "measurements from the Breast Cancer Wisconsin dataset. Upload a test CSV "
+    "(or just use the sample data), pick a model from the sidebar, and see how "
+    "it does."
 )
 
 st.sidebar.header("Configuration")

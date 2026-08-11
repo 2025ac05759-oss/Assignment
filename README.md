@@ -2,35 +2,44 @@
 
 ## a. Problem statement
 
-Breast cancer diagnosis from fine needle aspirate (FNA) images is traditionally
-done by a pathologist inspecting cell nuclei under a microscope. This project
-frames diagnosis as a binary classification problem: given a set of numeric
-measurements computed from a digitized FNA image of a breast mass, predict
-whether the mass is **malignant** or **benign**. Five classification models are
-trained on the same dataset, compared on a common set of evaluation metrics,
-and made available through an interactive Streamlit app so a user can upload
-test data, pick a model, and inspect its predictions and performance.
+Breast cancer is usually diagnosed by a doctor looking at cell samples under a
+microscope and deciding whether a lump is cancerous (malignant) or not
+(benign). For this project I built a classifier that makes that same
+malignant-vs-benign call automatically, using numeric measurements taken from
+the cell images instead of a human judgment call. It's a binary classification
+problem, and I trained five different ML models on the same dataset so I
+could compare how each one actually performs instead of just picking one and
+hoping for the best. Everything is wrapped in a Streamlit app where you can
+upload test data, pick which model to use, and see how well it does.
 
 ## b. Dataset description
 
-**Source:** Breast Cancer Wisconsin (Diagnostic) Data Set, originally from the
-UCI Machine Learning Repository (also distributed via `scikit-learn.datasets`
-and mirrored on Kaggle). The full raw copy used for this project is saved at
-[`data/breast_cancer_raw.csv`](data/breast_cancer_raw.csv).
+I used the Breast Cancer Wisconsin (Diagnostic) dataset — a well-known
+dataset originally from the UCI Machine Learning Repository (it also ships
+built into `scikit-learn` and is mirrored on Kaggle). The raw copy I used is
+saved at [`data/breast_cancer_raw.csv`](data/breast_cancer_raw.csv).
+
+Each row is one tumor sample. The columns are 30 numbers calculated from a
+digitized image of the cell nuclei — things like radius, texture, and
+smoothness — and each of those 10 underlying measurements is given three
+ways: its mean, its standard error, and its "worst" (largest) value. That's
+why there are 30 columns instead of 10.
 
 | Property | Value |
 |---|---|
 | Instances | 569 |
-| Features | 30 numeric features (mean, standard-error, and "worst" value of 10 measurements per cell nucleus: radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, fractal dimension) |
+| Features | 30 numeric columns (mean / error / worst of 10 cell-nucleus measurements: radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, fractal dimension) |
 | Target | `diagnosis` — 0 = malignant, 1 = benign |
-| Class balance | 212 malignant / 357 benign |
+| Class balance | 212 malignant, 357 benign |
 | Missing values | None |
 
-The dataset is split 80/20 (stratified on the target) into a training set used
-to fit the models and a held-out test set. The held-out test set — with true
-labels included — is saved as [`test_data.csv`](test_data.csv) and is what the
-Streamlit app uses for its bundled demo / what should be uploaded to see live
-evaluation metrics.
+I split the data 80/20 into a training set and a test set, keeping the same
+malignant/benign ratio in both halves (a "stratified" split) so the test set
+is a fair, representative sample and not accidentally skewed toward one
+class. The test set — with the correct answers included — is saved as
+[`test_data.csv`](test_data.csv). That's the file the Streamlit app uses by
+default, and it's what you should upload if you want to see the metrics
+update live.
 
 ## c. GitHub Repository Link
 
@@ -38,8 +47,9 @@ evaluation metrics.
 
 ## d. Models used
 
-All 5 models were trained and evaluated on the identical train/test split
-described above (`random_state=42`, 20% held out, stratified).
+All 5 models were trained and tested on the exact same split described above
+(same random seed, same 80/20 split), so the comparison below is apples to
+apples.
 
 | ML Model Name | Accuracy | AUC | Precision | Recall | F1 | MCC |
 |---|---|---|---|---|---|---|
@@ -49,20 +59,19 @@ described above (`random_state=42`, 20% held out, stratified).
 | Naive Bayes | 0.9386 | 0.9878 | 0.9452 | 0.9583 | 0.9517 | 0.8676 |
 | Random Forest (Ensemble) | 0.9474 | 0.9937 | 0.9583 | 0.9583 | 0.9583 | 0.8869 |
 
-*(Regenerate this table any time with `python model/train_models.py` — it
-recomputes the split, retrains every model, and rewrites
-`model/metrics_comparison.csv`.)*
+*(You can regenerate this table any time by running `python model/train_models.py` —
+it redoes the split, retrains every model, and rewrites `model/metrics_comparison.csv`.)*
 
 ### Observations
 
 | ML Model Name | Observation about model performance |
 |---|---|
-| Logistic Regression | Best performer on every single metric (Accuracy 0.9825, AUC 0.9954, MCC 0.9623). The 30 features are strongly correlated with the target in a roughly linear/monotonic way after standard scaling, which plays directly to a linear decision boundary and gives it an edge even over the ensemble methods. |
-| Decision Tree | Weakest model overall (Accuracy 0.9211, MCC 0.8313). A single tree, even depth-limited (`max_depth=5`) to control overfitting, produces axis-aligned splits that cut across the smooth, correlated feature space less efficiently than a linear or distance-based boundary — it also has the widest gap between AUC (0.9368) and the other models, showing weaker probability calibration. |
-| kNN | Very close second (Accuracy 0.9737, Recall 1.0000 — it caught every malignant case in this split). With features standardized before distance computation, the two diagnosis classes turn out to be well separated in the 30-dimensional feature space, which favors a local, distance-based method. |
-| Naive Bayes | Middle of the pack (Accuracy 0.9386, MCC 0.8676). The Gaussian Naive Bayes independence assumption is violated here — many of the 30 features are direct mathematical transforms of each other (e.g. mean radius, mean perimeter, and mean area are all measuring the same underlying size), and that correlation is exactly what hurts Naive Bayes most. |
-| Random Forest (Ensemble) | Solid, well-balanced performance (Accuracy 0.9474, AUC 0.9937) and a clear improvement over the single Decision Tree it's built from, confirming that bagging many trees reduces the variance that hurt the standalone tree. It still trails Logistic Regression and kNN on this dataset, likely because 569 samples is a modest amount of data for 300 trees to each learn something meaningfully different from. |
-| **Overall Winner for your dataset?** | **Logistic Regression** — it leads on Accuracy, AUC, Precision, Recall, F1, and MCC simultaneously, and its strength lines up with what's known about this dataset: the features are engineered, continuous, well-scaled, and largely linearly separable, so a linear model captures nearly all of the signal without the variance risk that hurts the tree-based methods on a dataset this size. |
+| Logistic Regression | Came out on top on every single metric (accuracy 0.9825, AUC 0.9954, MCC 0.9623). I didn't expect the simplest model here to win, but it makes sense once you look at the features — most of the 30 columns are really just different ways of measuring "how big and irregular is this cell", so they move in a pretty straight line with the diagnosis. That's exactly the kind of pattern a linear model like this is built for. |
+| Decision Tree | The weakest of the five (accuracy 0.9211, MCC 0.8313). I capped the tree depth at 5 so it wouldn't badly overfit on just 569 rows, but even a shallow tree can only cut the data into boxy, straight-edged regions, so it misses some of the smoother patterns the other models pick up. Its AUC (0.9368) was also the lowest by a clear margin, meaning its confidence scores are less trustworthy than the other models'. |
+| kNN | A close second, and it got recall to a perfect 1.0 — it didn't miss a single actual malignant case in this test set. That works well here because I scaled the features first, so distance between points means something, and the malignant and benign cases turn out to sit in fairly separate clusters once you do that. |
+| Naive Bayes | Landed in the middle (accuracy 0.9386, MCC 0.8676). Naive Bayes assumes all the features are independent of one another, and that's basically false here — mean radius, mean perimeter, and mean area are all just different ways of describing the size of the same cell, so they're heavily correlated. That broken assumption is probably the main reason it underperforms the rest. |
+| Random Forest (Ensemble) | Did well (accuracy 0.9474, AUC 0.9937) and was a clear step up from the single Decision Tree it's built out of, which lines up with what you'd expect — averaging many trees smooths out the mistakes any one tree makes. It still didn't beat Logistic Regression or kNN here, probably because 569 rows isn't a huge amount of data for 300 trees to each find something different to specialize in. |
+| **Overall Winner for your dataset?** | **Logistic Regression.** It wins on every metric at once, which doesn't happen very often. My best guess is that it comes down to the dataset itself — the features are clean, continuous, and pretty much linearly related to the outcome, so a simple linear model doesn't really lose anything by not being more complex. |
 
 ## Project structure
 
@@ -95,10 +104,8 @@ streamlit run app.py
 
 ## App features
 
-- CSV upload of test data (sidebar)
-- Model selection dropdown (Logistic Regression, Decision Tree, kNN, Naive
-  Bayes, Random Forest)
-- Evaluation metrics (Accuracy, AUC, Precision, Recall, F1, MCC) displayed for
-  the selected model when the uploaded/sample data includes true labels
-- Confusion matrix heatmap and full classification report
-- Expandable side-by-side comparison of all 5 models on the same uploaded data
+- Upload your own test CSV, or use the sample `test_data.csv` that's already bundled in
+- Dropdown to switch between all 5 models
+- Accuracy, AUC, Precision, Recall, F1, and MCC shown for whichever model is selected
+- Confusion matrix and a full classification report
+- An expandable section that runs all 5 models on the same uploaded data side by side, so you can compare them directly

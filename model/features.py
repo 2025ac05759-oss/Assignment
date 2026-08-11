@@ -1,7 +1,6 @@
 """
-Shared feature definitions for the Breast Cancer Wisconsin (Diagnostic)
-dataset, used by both the training script and the Streamlit app so the
-two never drift out of sync.
+Column names for the Breast Cancer Wisconsin dataset, kept in one place
+so the training script and the Streamlit app always agree on them.
 """
 
 from sklearn.datasets import load_breast_cancer
