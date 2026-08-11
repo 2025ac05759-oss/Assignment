@@ -14,14 +14,14 @@ upload test data, pick which model to use, and see how well it does.
 
 ## b. Dataset description
 
-I used the Breast Cancer Wisconsin (Diagnostic) dataset — a well-known
+I used the Breast Cancer Wisconsin (Diagnostic) dataset a well-known
 dataset originally from the UCI Machine Learning Repository (it also ships
 built into `scikit-learn` and is mirrored on Kaggle). The raw copy I used is
 saved at [`data/breast_cancer_raw.csv`](data/breast_cancer_raw.csv).
 
 Each row is one tumor sample. The columns are 30 numbers calculated from a
-digitized image of the cell nuclei — things like radius, texture, and
-smoothness — and each of those 10 underlying measurements is given three
+digitized image of the cell nuclei things like radius, texture, and
+smoothness and each of those 10 underlying measurements is given three
 ways: its mean, its standard error, and its "worst" (largest) value. That's
 why there are 30 columns instead of 10.
 
@@ -36,7 +36,7 @@ why there are 30 columns instead of 10.
 I split the data 80/20 into a training set and a test set, keeping the same
 malignant/benign ratio in both halves (a "stratified" split) so the test set
 is a fair, representative sample and not accidentally skewed toward one
-class. The test set — with the correct answers included — is saved as
+class. The test set with the correct answers included is saved as
 [`test_data.csv`](test_data.csv). That's the file the Streamlit app uses by
 default, and it's what you should upload if you want to see the metrics
 update live.
