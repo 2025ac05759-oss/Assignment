@@ -160,7 +160,7 @@ if has_labels:
         )
         st.dataframe(report_df, width="stretch")
 
-    with st.expander("Compare all 5 models on this data"):
+    with st.expander("Compare all 5 models on this data", expanded=True):
         rows = []
         for name, file_name in MODEL_FILES.items():
             m = load_model(file_name)
