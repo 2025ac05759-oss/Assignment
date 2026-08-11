@@ -5,3 +5,6 @@ venv/
 .streamlit/secrets.toml
 .claude/
 ML_Assignment_2.pdf
+ML_Assignment_2_Submission.pdf
+Screenshot*.png
+bits_lab_screenshot.png
