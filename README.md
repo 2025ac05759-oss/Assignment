@@ -43,7 +43,7 @@ update live.
 
 ## c. GitHub Repository Link
 
-`<PASTE_YOUR_GITHUB_REPOSITORY_URL_HERE_AFTER_PUSHING>`
+https://github.com/2025ac05759-oss/Assignment
 
 ## d. Models used
 
@@ -100,7 +100,7 @@ streamlit run app.py
 
 ## Live Streamlit App Link
 
-`<PASTE_YOUR_STREAMLIT_COMMUNITY_CLOUD_APP_URL_HERE_AFTER_DEPLOYING>`
+https://2025ac05759.streamlit.app/
 
 ## App features
 
